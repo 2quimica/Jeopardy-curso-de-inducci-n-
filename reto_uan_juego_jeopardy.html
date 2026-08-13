@@ -1,0 +1,2054 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RETO UAN: ¿Quién puso atención?</title>
+    <style>
+        /* ==========================================
+           ESTILOS GENERALES Y VARIABLES DE IDENTIDAD
+           ========================================== */
+        :root {
+            --uan-blue-dark: #0b2545;
+            --uan-blue: #134074;
+            --uan-blue-light: #8da9c4;
+            --uan-gold: #e0a96d;
+            --uan-gold-bright: #f4c430;
+            --uan-white: #eeaecd;
+            --bg-dark: #08121e;
+            --card-bg: #112233;
+            --card-hover: #1c3552;
+            --accent-red: #d9534f;
+            --accent-green: #5cb85c;
+            --font-main: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+        }
+
+        body {
+            font-family: var(--font-main);
+            background-color: var(--bg-dark);
+            color: #ffffff;
+            min-height: 100vh;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* HEADER Y ENCABEZADOS */
+        header {
+            background: linear-gradient(135deg, var(--uan-blue-dark), var(--uan-blue));
+            padding: 15px 20px;
+            text-align: center;
+            border-bottom: 4px solid var(--uan-gold);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            position: relative;
+        }
+
+        header h1 {
+            font-size: 2.2rem;
+            letter-spacing: 1.5px;
+            color: #fff;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.6);
+        }
+
+        header h1 span {
+            color: var(--uan-gold-bright);
+        }
+
+        header h2 {
+            font-size: 1.1rem;
+            font-weight: 400;
+            color: var(--uan-blue-light);
+            margin-top: 4px;
+        }
+
+        header .tagline {
+            font-size: 0.95rem;
+            font-style: italic;
+            color: #e0e0e0;
+            margin-top: 2px;
+        }
+
+        /* CONTENEDOR PRINCIPAL */
+        .container {
+            flex: 1;
+            max-width: 1400px;
+            width: 98%;
+            margin: 15px auto;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        /* VISTAS Y PANTALLAS */
+        .screen {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            animation: fadeIn 0.4s ease-in-out;
+        }
+
+        .screen.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* BOTONES GENERALES DE ALTO CONTRASTE */
+        .btn {
+            background: linear-gradient(180deg, #1d528f, #11335c);
+            color: white;
+            border: 2px solid var(--uan-gold);
+            padding: 14px 28px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin: 8px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn:hover {
+            background: linear-gradient(180deg, #2566b0, #18457a);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(224, 169, 109, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(1px);
+        }
+
+        .btn-gold {
+            background: linear-gradient(180deg, var(--uan-gold-bright), #b88228);
+            color: #000;
+            border-color: #fff;
+        }
+
+        .btn-gold:hover {
+            background: linear-gradient(180deg, #ffd700, #d49520);
+        }
+
+        .btn-danger {
+            background: linear-gradient(180deg, #d9534f, #962d2a);
+            border-color: #ff8885;
+        }
+
+        .btn-success {
+            background: linear-gradient(180deg, #5cb85c, #357a35);
+            border-color: #8ae68a;
+        }
+
+        /* BARRA SUPERIOR DE MARCADOR Y TURNO */
+        .game-bar {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(11, 37, 69, 0.9);
+            border: 2px solid var(--uan-blue-light);
+            border-radius: 12px;
+            padding: 10px 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .turn-display {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: var(--uan-gold-bright);
+            background: rgba(0,0,0,0.4);
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: 1px solid var(--uan-gold);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .teams-scoreboard {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .team-card {
+            background: #0f2a4a;
+            border: 2px solid #285282;
+            border-radius: 8px;
+            padding: 8px 14px;
+            text-align: center;
+            min-width: 110px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .team-card.active-turn {
+            border-color: var(--uan-gold-bright);
+            background: #1e4578;
+            box-shadow: 0 0 12px var(--uan-gold-bright);
+            transform: scale(1.05);
+        }
+
+        .team-card .name {
+            font-size: 0.95rem;
+            font-weight: bold;
+            color: #ddd;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 130px;
+        }
+
+        .team-card.active-turn .name {
+            color: #fff;
+        }
+
+        .team-card .score {
+            font-size: 1.4rem;
+            font-weight: 900;
+            color: var(--uan-gold-bright);
+            margin-top: 2px;
+        }
+
+        /* TABLERO JEOPARDY */
+        .jeopardy-board {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            width: 100%;
+            margin-bottom: 15px;
+        }
+
+        .category-header {
+            background: linear-gradient(180deg, #134074, #0b2545);
+            border: 2px solid var(--uan-gold);
+            border-radius: 8px;
+            padding: 12px 6px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: #ffffff;
+            text-transform: uppercase;
+            min-height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+            text-shadow: 1px 1px 3px #000;
+        }
+
+        .grid-cell {
+            background: linear-gradient(180deg, #1e406d, #0f2747);
+            border: 2px solid var(--uan-blue-light);
+            border-radius: 8px;
+            height: 90px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.2rem;
+            font-weight: 900;
+            color: var(--uan-gold-bright);
+            cursor: pointer;
+            transition: all 0.25s ease;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+        }
+
+        .grid-cell:hover:not(.played) {
+            background: linear-gradient(180deg, #2b5996, #163863);
+            border-color: var(--uan-gold-bright);
+            transform: scale(1.03);
+            box-shadow: 0 6px 15px rgba(244, 196, 48, 0.4);
+        }
+
+        .grid-cell.played {
+            background: #09131f !important;
+            border-color: #1a2a3a !important;
+            color: #2c3e50 !important;
+            cursor: not-allowed;
+            text-shadow: none;
+            opacity: 0.4;
+        }
+
+        /* MODAL / TARJETA DE PREGUNTA */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(4, 10, 20, 0.92);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(5px);
+            padding: 20px;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .question-card {
+            background: linear-gradient(135deg, #0f2847, #08172b);
+            border: 3px solid var(--uan-gold);
+            border-radius: 16px;
+            width: 92%;
+            max-width: 1000px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .question-header {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--uan-blue-light);
+            padding-bottom: 12px;
+            margin-bottom: 20px;
+        }
+
+        .question-cat-title {
+            font-size: 1.3rem;
+            color: var(--uan-gold-bright);
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .question-points-badge {
+            background: var(--uan-gold);
+            color: #000;
+            padding: 6px 16px;
+            font-weight: 900;
+            font-size: 1.3rem;
+            border-radius: 20px;
+        }
+
+        .timer-box {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(0,0,0,0.5);
+            padding: 8px 16px;
+            border-radius: 30px;
+            border: 1px solid var(--uan-blue-light);
+        }
+
+        .timer-clock {
+            font-size: 1.8rem;
+            font-weight: bold;
+            font-family: monospace;
+            color: #5cb85c;
+            min-width: 50px;
+            text-align: center;
+        }
+
+        .timer-clock.warning {
+            color: #ff9900;
+            animation: pulse 0.5s infinite alternate;
+        }
+
+        .timer-clock.danger {
+            color: #d9534f;
+            animation: pulse 0.25s infinite alternate;
+        }
+
+        @keyframes pulse {
+            from { transform: scale(1); }
+            to { transform: scale(1.15); }
+        }
+
+        .question-text {
+            font-size: 1.8rem;
+            text-align: center;
+            margin: 20px 0;
+            line-height: 1.4;
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        /* OPCIONES MULTIPLES */
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            width: 100%;
+            margin: 20px 0;
+        }
+
+        .option-btn {
+            background: rgba(19, 64, 116, 0.6);
+            border: 2px solid var(--uan-blue-light);
+            border-radius: 10px;
+            padding: 16px 20px;
+            font-size: 1.2rem;
+            color: #fff;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .option-btn:hover {
+            background: rgba(30, 85, 150, 0.8);
+            border-color: var(--uan-gold-bright);
+        }
+
+        .option-letter {
+            background: var(--uan-gold);
+            color: #000;
+            font-weight: bold;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        /* RESPUESTA Y EXPLICACION */
+        .answer-box {
+            display: none;
+            width: 100%;
+            background: rgba(16, 42, 18, 0.85);
+            border: 2px solid var(--accent-green);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 15px 0;
+            text-align: center;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .answer-box.active {
+            display: block;
+        }
+
+        .answer-title {
+            color: #8ae68a;
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+
+        .answer-text {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #ffffff;
+            margin-bottom: 10px;
+        }
+
+        .explanation-text {
+            font-size: 1.1rem;
+            color: #d0e8d0;
+            line-height: 1.4;
+            font-style: italic;
+            border-top: 1px solid rgba(255,255,255,0.2);
+            padding-top: 8px;
+        }
+
+        /* CONTROLES DEL DOCENTE EN LA TARJETA */
+        .eval-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: center;
+            width: 100%;
+            margin-top: 15px;
+            border-top: 1px solid #1c385c;
+            padding-top: 15px;
+        }
+
+        /* PANTALLAS DE FLUJO */
+        .welcome-card, .rules-card, .icebreaker-card, .final-card, .winner-card {
+            background: linear-gradient(135deg, #0f2847, #09172a);
+            border: 3px solid var(--uan-gold);
+            border-radius: 16px;
+            padding: 35px;
+            max-width: 900px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+        }
+
+        .welcome-card h2, .rules-card h2, .icebreaker-card h2, .final-card h2, .winner-card h2 {
+            font-size: 2.2rem;
+            color: var(--uan-gold-bright);
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px #000;
+        }
+
+        .instruction-list {
+            text-align: left;
+            margin: 20px 0;
+            font-size: 1.2rem;
+            line-height: 1.8;
+            background: rgba(0,0,0,0.3);
+            padding: 20px 30px;
+            border-radius: 10px;
+            border-left: 4px solid var(--uan-gold);
+        }
+
+        .instruction-list li {
+            margin-bottom: 10px;
+        }
+
+        /* CONFIGURACIÓN DE EQUIPOS */
+        .teams-setup-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            width: 100%;
+            margin: 20px 0;
+        }
+
+        .team-input-group {
+            display: flex;
+            flex-direction: column;
+            text-align: left;
+        }
+
+        .team-input-group label {
+            font-size: 0.95rem;
+            color: var(--uan-blue-light);
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .team-input-group input {
+            background: #09182b;
+            border: 2px solid var(--uan-blue-light);
+            border-radius: 8px;
+            padding: 10px 14px;
+            color: #fff;
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+
+        .team-input-group input:focus {
+            outline: none;
+            border-color: var(--uan-gold-bright);
+        }
+
+        /* ANIMACIÓN BASS / CASILLAS ESPECIALES */
+        .special-badge-overlay {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(11, 37, 69, 0.95);
+            border-radius: 16px;
+            z-index: 10;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            animation: zoomIn 0.4s ease;
+        }
+
+        .special-badge-overlay.active {
+            display: flex;
+        }
+
+        @keyframes zoomIn {
+            from { transform: scale(0.5); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .special-title {
+            font-size: 3.5rem;
+            font-weight: 900;
+            color: var(--uan-gold-bright);
+            text-shadow: 0 0 20px rgba(244, 196, 48, 0.8);
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .special-desc {
+            font-size: 1.5rem;
+            color: #fff;
+            margin-bottom: 25px;
+            text-align: center;
+            max-width: 80%;
+        }
+
+        /* BOTÓN FLOTANTE DISCRETO PARA DOCENTE */
+        .teacher-floating-btn {
+            position: fixed;
+            bottom: 15px;
+            right: 15px;
+            background: var(--uan-blue-dark);
+            border: 2px solid var(--uan-gold);
+            color: var(--uan-gold-bright);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 900;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            opacity: 0.85;
+            transition: opacity 0.2s;
+        }
+
+        .teacher-floating-btn:hover {
+            opacity: 1;
+        }
+
+        /* PANEL LATERAL / MODAL DEL DOCENTE */
+        .teacher-panel {
+            display: none;
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 380px;
+            max-width: 90vw;
+            height: 100vh;
+            background: #071526;
+            border-left: 3px solid var(--uan-gold);
+            z-index: 2000;
+            padding: 20px;
+            box-shadow: -5px 0 25px rgba(0,0,0,0.8);
+            flex-direction: column;
+            gap: 15px;
+            overflow-y: auto;
+        }
+
+        .teacher-panel.active {
+            display: flex;
+        }
+
+        .teacher-panel h3 {
+            color: var(--uan-gold-bright);
+            font-size: 1.4rem;
+            border-bottom: 1px solid var(--uan-blue-light);
+            padding-bottom: 10px;
+        }
+
+        .teacher-panel-section {
+            background: #0f2540;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #1c3e66;
+        }
+
+        .teacher-panel-section h4 {
+            color: #fff;
+            font-size: 1rem;
+            margin-bottom: 8px;
+        }
+
+        /* CLASIFICACIÓN / LEADERBOARD */
+        .leaderboard-list {
+            width: 100%;
+            margin: 15px 0;
+        }
+
+        .leaderboard-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #0f2744;
+            border: 1px solid var(--uan-blue-light);
+            padding: 12px 20px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            font-size: 1.3rem;
+            font-weight: bold;
+        }
+
+        .leaderboard-item:nth-child(1) {
+            border-color: var(--uan-gold-bright);
+            background: linear-gradient(90deg, #2b2208, #0f2744);
+            color: var(--uan-gold-bright);
+        }
+
+        /* CONFETI CANVAS */
+        #confetti-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 1500;
+        }
+
+        /* RESPONSIVIDAD PARA PROYECTOR / PANTALLAS PEQUEÑAS */
+        @media (max-width: 900px) {
+            header h1 { font-size: 1.6rem; }
+            .category-header { font-size: 0.85rem; min-height: 50px; }
+            .grid-cell { font-size: 1.5rem; height: 65px; }
+            .question-text { font-size: 1.3rem; }
+            .options-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- CANVA DE CONFETI PARA CELEBRACIÓN -->
+    <canvas id="confetti-canvas"></canvas>
+
+    <!-- ENCABEZADO PERMANENTE -->
+    <header>
+        <h1>RETO UAN: <span>¿Quién puso atención?</span></h1>
+        <h2>Curso de Inducción 2026 – Generación 2026-2029</h2>
+        <div class="tagline">“Conoce tu Universidad, trabaja en equipo y demuestra cuánto aprendiste.”</div>
+    </header>
+
+    <div class="container">
+
+        <!-- ==========================================
+             PANTALLA 1: BIENVENIDA Y CONFIGURACIÓN
+             ========================================== -->
+        <section id="screen-welcome" class="screen active">
+            <div class="welcome-card">
+                <h2>¡Bienvenidos a la Universidad Autónoma de Nayarit!</h2>
+                <p style="font-size: 1.2rem; margin-bottom: 20px; color: #d0e0f0;">
+                    Para comenzar el concurso, selecciona el número de equipos y personaliza sus nombres.
+                </p>
+
+                <div style="margin-bottom: 20px;">
+                    <label style="font-size: 1.1rem; font-weight: bold; margin-right: 10px;">Número de Equipos:</label>
+                    <select id="num-teams-select" style="background: #09182b; color: white; padding: 8px 16px; border-radius: 8px; border: 2px solid var(--uan-gold); font-size: 1.1rem; font-weight: bold;" onchange="updateTeamsSetupGrid()">
+                        <option value="4">4 Equipos</option>
+                        <option value="5" selected>5 Equipos</option>
+                        <option value="6">6 Equipos</option>
+                    </select>
+                </div>
+
+                <div id="teams-setup-grid" class="teams-setup-grid">
+                    <!-- Generado dinámicamente -->
+                </div>
+
+                <button class="btn btn-gold" onclick="goToIcebreaker()">
+                    CONTINUAR A INTEGRACIÓN ➔
+                </button>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             PANTALLA 2: ROMPEHIELO / CONOCE A TU EQUIPO
+             ========================================== -->
+        <section id="screen-icebreaker" class="screen">
+            <div class="icebreaker-card">
+                <h2>🤝 PASO 1: CONOCE A TU EQUIPO</h2>
+                <p style="font-size: 1.2rem; color: var(--uan-gold-bright); margin-bottom: 15px;">
+                    Tienen <strong>3 MINUTOS</strong> para realizar la siguiente dinámica de integración:
+                </p>
+
+                <ul class="instruction-list">
+                    <li>1. Presentarse uno a uno por su <strong>nombre</strong> y la <strong>secundaria de la que provienen</strong>.</li>
+                    <li>2. Confirmar el <strong>nombre de su equipo</strong>.</li>
+                    <li>3. Elegir a una persona que funcionará como <strong>Portavoz</strong>.</li>
+                    <li>4. Inventar un <strong>grito o porra breve</strong> de equipo.</li>
+                </ul>
+
+                <button class="btn btn-gold" onclick="goToRules()">
+                    ¡LISTOS! VER REGLAS DEL JUEGO ➔
+                </button>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             PANTALLA 3: REGLAS DEL JUEGO
+             ========================================== -->
+        <section id="screen-rules" class="screen">
+            <div class="rules-card">
+                <h2>📜 REGLAS DEL RETO UAN</h2>
+
+                <ul class="instruction-list">
+                    <li>💬 <strong>Diálogo:</strong> Cada equipo debe dialogar en voz baja antes de que el portavoz responda.</li>
+                    <li>🤝 <strong>Respeto:</strong> Respetamos el turno de participación de los demás equipos.</li>
+                    <li>🚫 <strong>Sin Celulares:</strong> Queda prohibido consultar celulares o fuentes externas.</li>
+                    <li>⏱️ <strong>Tiempo Límite:</strong> Tienen 30 segundos para contestar cada pregunta.</li>
+                    <li>🔄 <strong>Rebote:</strong> Si un equipo responde incorrectamente, el turno puede pasar a otro equipo.</li>
+                    <li>🎓 <strong>Propósito:</strong> Lo importante no es solo ganar, sino aprender e integrarse a la UAN.</li>
+                </ul>
+
+                <button class="btn btn-gold" onclick="startGameBoard()">
+                    ¡ENTENDIDO, COMENCEMOS EL RETO! 🚀
+                </button>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             PANTALLA 4: TABLERO PRINCIPAL JEOPARDY
+             ========================================== -->
+        <section id="screen-board" class="screen">
+            <!-- MARCADOR Y TURNO -->
+            <div class="game-bar">
+                <div class="turn-display" id="turn-display">
+                    TURNO: <span id="current-turn-team-name" style="color: #fff;">Equipo 1</span>
+                    <button style="background: transparent; border: 1px solid var(--uan-gold); color: var(--uan-gold); padding: 2px 8px; border-radius: 4px; cursor: pointer; font-size: 0.8rem;" onclick="nextTurn()">Cambiar Turno 🔄</button>
+                </div>
+                <div class="teams-scoreboard" id="scoreboard-container">
+                    <!-- Se genera dinámicamente -->
+                </div>
+            </div>
+
+            <!-- TABLERO -->
+            <div class="jeopardy-board" id="jeopardy-board">
+                <!-- Se genera dinámicamente las 5 categorías y 25 casillas -->
+            </div>
+
+            <div style="margin-top: 10px; display: flex; gap: 15px; flex-wrap: wrap;">
+                <button class="btn" onclick="openLeaderboardModal()">📊 Ver Marcador General</button>
+                <button class="btn btn-gold" id="btn-gran-final" style="display: none;" onclick="goToGranFinal()">🏆 IR A LA GRAN FINAL UAN</button>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             PANTALLA 5: GRAN FINAL UAN
+             ========================================== -->
+        <section id="screen-final" class="screen">
+            <div class="final-card">
+                <h2>🏆 GRAN FINAL UAN</h2>
+                <p style="font-size: 1.2rem; color: #ddd; margin-bottom: 20px;">
+                    ¡Llegamos a la fase decisiva! Todos los equipos podrán realizar una apuesta secreta.
+                </p>
+
+                <div id="final-step-1">
+                    <h3 style="color: var(--uan-gold-bright); margin-bottom: 15px;">Fase de Apuestas</h3>
+                    <p style="margin-bottom: 15px;">Cada equipo puede apostar desde <strong>0 puntos</strong> hasta el <strong>total de su puntuación actual</strong>.</p>
+                    <div id="final-bets-inputs" style="display: flex; flex-direction: column; gap: 10px; max-width: 500px; margin: 0 auto 20px auto;">
+                        <!-- Generado dinámicamente -->
+                    </div>
+                    <button class="btn btn-gold" onclick="proceedToFinalQuestion()">REVELAR PREGUNTA FINAL ➔</button>
+                </div>
+
+                <div id="final-step-2" style="display: none;">
+                    <div class="question-text" id="final-question-text">
+                        Cargando pregunta final...
+                    </div>
+                    <p style="color: var(--uan-gold-bright); font-size: 1.2rem; margin-bottom: 15px;">
+                        ⏱️ Tienen 45 segundos para redactar juntos su respuesta en una hoja de papel.
+                    </p>
+                    <div style="font-size: 2.5rem; font-weight: bold; font-family: monospace; color: #5cb85c; margin-bottom: 15px;" id="final-timer">45</div>
+
+                    <button class="btn" onclick="startFinalTimer()">▶️ Iniciar Tiempo</button>
+                    <button class="btn btn-gold" onclick="revealFinalAnswer()">REVELAR RESPUESTA Y EVALUAR ➔</button>
+
+                    <div id="final-answer-box" class="answer-box" style="margin-top: 20px;">
+                        <div class="answer-title">Respuesta Correcta:</div>
+                        <div class="answer-text" id="final-correct-answer">...</div>
+                        <div class="explanation-text" id="final-explanation">...</div>
+
+                        <h4 style="margin-top: 20px; color: var(--uan-gold-bright);">Marcar quiénes acertaron:</h4>
+                        <div id="final-evaluation-checks" style="display: flex; flex-direction: column; gap: 8px; max-width: 400px; margin: 10px auto;">
+                            <!-- Generado dinámicamente -->
+                        </div>
+                        <button class="btn btn-success" style="margin-top: 15px;" onclick="calculateFinalResults()">CALCULAR RESULTADOS FINALES 🏆</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             PANTALLA 6: EQUIPO GANADOR Y PREMIO
+             ========================================== -->
+        <section id="screen-winner" class="screen">
+            <div class="winner-card">
+                <h2 style="font-size: 3rem; color: var(--uan-gold-bright);">🎉 ¡TENEMOS EQUIPO GANADOR! 🎉</h2>
+                
+                <div id="winner-display" style="margin: 25px 0;">
+                    <!-- Generado dinámicamente -->
+                </div>
+
+                <div style="background: rgba(0,0,0,0.4); border: 2px dashed var(--uan-gold); padding: 20px; border-radius: 12px; margin: 20px 0;">
+                    <h3 style="color: var(--uan-gold-bright); font-size: 1.5rem;">🎁 PREMIO DE CAMPEONES:</h3>
+                    <p style="font-size: 1.6rem; font-weight: bold; margin: 10px 0; color: #fff;">
+                        “Icosaedro estrellado elaborado con papiroflexia”
+                    </p>
+                    <p style="font-style: italic; color: var(--uan-blue-light); font-size: 1.2rem;">
+                        “Una figura con muchas caras para un equipo que demostró tener muchas neuronas trabajando.”
+                    </p>
+                </div>
+
+                <div style="margin: 25px 0; border-top: 1px solid var(--uan-blue-light); padding-top: 20px;">
+                    <h3 style="color: var(--uan-gold-bright); font-size: 1.4rem; margin-bottom: 10px;">GENERACIÓN 2026-2029</h3>
+                    <p style="font-size: 1.3rem; line-height: 1.5; color: #e0e0e0;">
+                        “Hoy comienzan una nueva etapa llena de aprendizaje, amistad y retos.<br><strong>¡Bienvenidos a la Universidad Autónoma de Nayarit!</strong>”
+                    </p>
+                </div>
+
+                <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+                    <button class="btn" onclick="openSourcesModal()">📚 Ver Fuentes Consultadas</button>
+                    <button class="btn btn-gold" onclick="resetGameWithConfirmation()">🏁 FIN DEL RETO UAN</button>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- ==========================================
+         TARJETA / MODAL DE PREGUNTA EN JUEGO
+         ========================================== -->
+    <div id="question-modal" class="modal-overlay">
+        <div class="question-card">
+            <!-- Overlay para doble puntaje o Reto Ocelote -->
+            <div id="special-overlay" class="special-badge-overlay">
+                <div class="special-title" id="special-title">¡DOBLE PUNTAJE!</div>
+                <div class="special-desc" id="special-desc">¡Esta casilla vale el doble de puntos! Demuestren de qué están hechos.</div>
+                <button class="btn btn-gold" onclick="dismissSpecialOverlay()">VER PREGUNTA ➔</button>
+            </div>
+
+            <div class="question-header">
+                <div class="question-cat-title" id="modal-category">Categoría</div>
+                <div class="question-points-badge" id="modal-points">100 PUNTOS</div>
+                <div class="timer-box">
+                    <span>⏱️</span>
+                    <div class="timer-clock" id="modal-timer">30</div>
+                    <button style="background: transparent; border: none; color: white; cursor: pointer;" onclick="toggleTimer()">⏯️</button>
+                    <button style="background: transparent; border: none; color: white; cursor: pointer;" onclick="resetTimer()">🔄</button>
+                </div>
+            </div>
+
+            <div class="question-text" id="modal-question-text">
+                Pregunta...
+            </div>
+
+            <div class="options-grid" id="modal-options-grid">
+                <!-- Se poblará dinámicamente si es opción múltiple -->
+            </div>
+
+            <div class="answer-box" id="modal-answer-box">
+                <div class="answer-title">Respuesta Correcta:</div>
+                <div class="answer-text" id="modal-answer-text">...</div>
+                <div class="explanation-text" id="modal-explanation-text">...</div>
+            </div>
+
+            <div class="eval-controls">
+                <button class="btn" onclick="revealAnswer()" id="btn-show-answer">👁️ MOSTRAR RESPUESTA</button>
+                
+                <div id="eval-buttons" style="display: none; gap: 10px; flex-wrap: wrap; justify-content: center; width: 100%;">
+                    <span style="width: 100%; text-align: center; color: var(--uan-gold-bright); font-weight: bold;">Asignar Puntos a:</span>
+                    <div id="team-assign-buttons" style="display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;">
+                        <!-- Generado dinámicamente -->
+                    </div>
+                    <button class="btn btn-danger" onclick="markIncorrectAndClose()">❌ NADIE / INCORRECTA</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         MODAL DE CLASIFICACIÓN / LEADERBOARD
+         ========================================== -->
+    <div id="leaderboard-modal" class="modal-overlay">
+        <div class="question-card" style="max-width: 600px;">
+            <h2 style="color: var(--uan-gold-bright); margin-bottom: 20px;">📊 Marcador General</h2>
+            <div id="leaderboard-content" class="leaderboard-list">
+                <!-- Generado dinámicamente -->
+            </div>
+            <button class="btn btn-gold" onclick="closeLeaderboardModal()">CERRAR</button>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         MODAL DE FUENTES UTILIZADAS
+         ========================================== -->
+    <div id="sources-modal" class="modal-overlay">
+        <div class="question-card" style="max-width: 750px;">
+            <h2 style="color: var(--uan-gold-bright); margin-bottom: 15px;">📚 Fuentes Históricas e Institucionales</h2>
+            <p style="text-align: left; margin-bottom: 15px; color: #ddd; line-height: 1.5;">
+                Todas las preguntas, respuestas y explicaciones de este concurso están fundamentadas exclusivamente en los archivos y materiales documentales de la Universidad Autónoma de Nayarit:
+            </p>
+            <ul class="instruction-list" style="font-size: 1rem;">
+                <li>📹 <strong>"Reviviendo el Camino de plata de la UAN"</strong> - Entrevista y memorias de la recolección comunitaria (840 mil pesos y terrenos de Menchaca/Los Fresnos).</li>
+                <li>📹 <strong>"La Historia de la Universidad Autónoma de Nayarit"</strong> - Testimonios sobre la recolección de ladrillos en 1968, fundación por el Dr. Julián Gascón Mercado y hallazgos arqueológicos.</li>
+                <li>📹 <strong>"40 años UAN. Camino de plata"</strong> - Promulgación de la Ley Orgánica (Decreto 5162, 19 de agosto de 1969) y primer rector Dr. Ignacio Cuesta Barrios.</li>
+                <li>📹 <strong>"Anécdotas con el Dr. Julián Gascón Mercado (Partes 1 y 2)"</strong> - Relato sobre la Escuela de Derecho, Medicina, Agricultura y el diseño del Mesón de los Deportes.</li>
+                <li>📹 <strong>"Norma Galván, El Camino a la Rectoría de la UAN"</strong> - Trayectoria e historia de la primera rectora de la UAN.</li>
+                <li>📹 <strong>"02 Historia Universidad"</strong> - Registros documentales sobre la autonomía universitaria.</li>
+            </ul>
+            <button class="btn btn-gold" onclick="closeSourcesModal()">CERRAR</button>
+        </div>
+    </div>
+
+    <!-- BOTÓN FLOTANTE CONTROLES DEL DOCENTE -->
+    <button class="teacher-floating-btn" onclick="toggleTeacherPanel()">⚙️ Controles Maestro</button>
+
+    <!-- PANEL LATERAL DE CONTROLES DEL DOCENTE -->
+    <div class="teacher-panel" id="teacher-panel">
+        <h3>⚙️ Panel del Docente</h3>
+
+        <div class="teacher-panel-section">
+            <h4>Puntuaciones Rápidas</h4>
+            <div id="teacher-scores-edit" style="display: flex; flex-direction: column; gap: 8px;">
+                <!-- Generado dinámicamente -->
+            </div>
+        </div>
+
+        <div class="teacher-panel-section">
+            <h4>Acciones del Juego</h4>
+            <button class="btn" style="width: 100%; font-size: 0.9rem; margin: 4px 0;" onclick="undoLastScore()">↩️ Deshacer Último Cambio</button>
+            <button class="btn" style="width: 100%; font-size: 0.9rem; margin: 4px 0;" onclick="toggleAudioSetting()" id="btn-toggle-sound">🔊 Sonido: ACTIVADO</button>
+            <button class="btn" style="width: 100%; font-size: 0.9rem; margin: 4px 0;" onclick="toggleTimerSetting()" id="btn-toggle-timer-setting">⏱️ Temporizador: ACTIVADO</button>
+            <button class="btn" style="width: 100%; font-size: 0.9rem; margin: 4px 0;" onclick="toggleFullScreen()">🖥️ Pantalla Completa</button>
+        </div>
+
+        <div class="teacher-panel-section">
+            <h4>Zona de Riesgo</h4>
+            <button class="btn btn-danger" style="width: 100%; font-size: 0.9rem; margin: 4px 0;" onclick="resetGameWithConfirmation()">🔄 Reiniciar Juego Completo</button>
+        </div>
+
+        <button class="btn btn-gold" style="margin-top: auto;" onclick="toggleTeacherPanel()">CERRAR PANEL</button>
+    </div>
+
+
+    <!-- ==========================================
+         LOGICA JAVASCRIPT Y BANCO DE PREGUNTAS
+         ========================================== -->
+    <script>
+        /* =============================================================
+           BANCO DE PREGUNTAS BASADO EXCLUSIVAMENTE EN LAS FUENTES UAN
+           ============================================================= */
+
+        /*
+           Fuentes consultadas:
+           F1: Video "Reviviendo el Camino de plata de la UAN"
+           F2: Video "La Historia de la Universidad Autónoma de Nayarit (UAN)"
+           F3: Video "40 años UAN. Camino de plata"
+           F4: Video "Anécdotas con el Dr. Julián Gascón Mercado (Partes 1 y 2)"
+           F5: Video "NORMA GALVÁN, EL CAMINO A LA RECTORÍA DE LA UAN"
+           F6: Video "En memoria del Dr. Julián Gascón Mercado 1925-2024"
+        */
+
+        const QUESTIONS_BANK = [
+            // CATEGORÍA 1: Historia de la UAN
+            {
+                category: "Historia de la UAN",
+                points: 100,
+                type: "multiple", // Fuente: F2, F4, F6
+                question: "¿Quién fue el gobernador visionario impulsador y fundador de la Universidad de Nayarit?",
+                options: ["Dr. Julián Gascón Mercado", "Dr. Ignacio Cuesta Barrios", "Amado Nervo", "Esteban Baca Calderón"],
+                answer: "A",
+                answerText: "Dr. Julián Gascón Mercado",
+                explanation: "Nacido en El Trapichillo, Nayarit, impulsó la creación de la universidad para que los jóvenes no tuvieran que emigrar del estado para estudiar educación superior."
+            },
+            {
+                category: "Historia de la UAN",
+                points: 200,
+                type: "multiple", // Fuente: F3
+                question: "¿En qué año se erigió Tepic como Estado Libre y Soberano de Nayarit tras la Constitución?",
+                options: ["1810", "1917", "1968", "1975"],
+                answer: "B",
+                answerText: "1917",
+                explanation: "En 1917 Nayarit surge como estado, iniciando el reto histórico de crear espacios educativos superiores propios."
+            },
+            {
+                category: "Historia de la UAN",
+                points: 300,
+                type: "multiple", // Fuente: F3
+                question: "¿En qué fecha exacta se promulgó el Decreto 5162 de la Ley Orgánica que dio nacimiento oficial a la Universidad de Nayarit?",
+                options: ["1 de Enero de 1964", "19 de Agosto de 1969", "12 de Octubre de 1970", "20 de Noviembre de 1968"],
+                answer: "B",
+                answerText: "19 de Agosto de 1969",
+                explanation: "El Congreso del Estado de Nayarit promulga mediante el Decreto 5162 la Ley Orgánica de la Universidad."
+            },
+            {
+                category: "Historia de la UAN",
+                points: 400,
+                type: "tf", // Fuente: F3
+                question: "Verdadero o Falso: El primer rector oficial de nuestra máxima casa de estudios fue el Dr. Ignacio Cuesta Barrios.",
+                options: ["Verdadero", "Falso"],
+                answer: "A",
+                answerText: "Verdadero",
+                explanation: "Al promulgarse la Ley Orgánica en agosto de 1969, el Dr. Ignacio Cuesta Barrios asumió como el primer rector de la institución."
+            },
+            {
+                category: "Historia de la UAN",
+                points: 500,
+                type: "open", // Fuente: F4
+                question: "¿Cuáles fueron los terrenos ejidales conseguidos inicialmente por el Dr. Julián Gascón Mercado para construir la Ciudad de la Cultura (cubriendo más de 60 hectáreas)?",
+                answerText: "Ejidos de Menchaca y Los Fresnos",
+                explanation: "El fundador gestionó más de 60 hectáreas sembradas de caña en los ejidos de Menchaca y Los Fresnos, prometiendo y construyendo casas para los habitantes que ahí vivían."
+            },
+
+            // CATEGORÍA 2: El Camino de Plata y Aportaciones
+            {
+                category: "El Camino de Plata",
+                points: 100,
+                type: "multiple", // Fuente: F1, F2, F4
+                question: "¿En qué consistió la icónica campaña del 'Camino de Plata hacia la cultura'?",
+                options: [
+                    "Vender joyas de plata de la mina de San Pedro Lagunillas",
+                    "Alinear monedas de plata de 25 o 30 pesos desde el río Mololoa hasta la Cruz",
+                    "Construir un puente metálico sobre el río Mololoa",
+                    "Una donación del gobierno federal de lingotes"
+                ],
+                answer: "B",
+                answerText: "Alinear monedas de plata desde el río Mololoa hacia la Cruz de Zacate",
+                explanation: "Las familias y madres alineaban un metro de monedas de plata (25-30 pesos por metro) formando un camino simbólico de solidaridad popular."
+            },
+            {
+                category: "El Camino de Plata",
+                points: 200,
+                type: "open", // Fuente: F1, F4
+                question: "¿Cuánto dinero recaudó el pueblo nayarita en solo 8 días gracias a la colecta del Camino de Plata?",
+                answerText: "840 mil pesos",
+                explanation: "Se recaudaron 840,000 pesos depositados ante notario, lo que demostró el compromiso del pueblo e impulsó que el Presidente de la República donara un millón adicional."
+            },
+            {
+                category: "El Camino de Plata",
+                points: 300,
+                type: "multiple", // Fuente: F2
+                question: "En 1968, ante la falta de presupuesto inicial, ¿qué material de construcción se pidió aportar mediante convocatoria a cada estudiante del estado?",
+                options: ["Un saco de cemento", "Un ladrillo", "Una varilla de acero", "Un bote de pintura"],
+                answer: "B",
+                answerText: "Un ladrillo",
+                explanation: "Se convocó a estudiantes de todos los niveles en todo el estado para que cada uno aportara un ladrillo, acumulando cerros de material para iniciar la edificación."
+            },
+            {
+                category: "El Camino de Plata",
+                points: 400,
+                type: "tf", // Fuente: F1
+                question: "Verdadero o Falso: Las comunidades ejidales cercanas aportaban incluso hortalizas y gallinas para venderlas en el mercado y recaudar fondos para la Universidad.",
+                options: ["Verdadero", "Falso"],
+                answer: "A",
+                answerText: "Verdadero",
+                explanation: "El Dr. Gascón Mercado destacó que la universidad fue un esfuerzo colectivo de todas las clases sociales y comunidades rurales de Nayarit."
+            },
+            {
+                category: "El Camino de Plata",
+                points: 500,
+                type: "open", // Fuente: F4
+                question: "¿Qué emotivo gesto realizó la esposa del Dr. Julián Gascón Mercado (Sra. Julieta) cuando salieron de Tepic hacia la Ciudad de México?",
+                answerText: "Recogió un puñado de tierra de la universidad en una bolsita para conservarla en su despacho.",
+                explanation: "En el trayecto, se detuvo para guardar un puñado de tierra de la universidad en una bolsita como símbolo del profundo amor y orgullo por la obra."
+            },
+
+            // CATEGORÍA 3: Espacios e Identidad UAN
+            {
+                category: "Espacios e Identidad",
+                points: 100,
+                type: "multiple", // Fuente: F4
+                question: "¿Por qué el recinto deportivo bajo techo de la UAN fue nombrado 'Mesón de los Deportes' por el Dr. Gascón Mercado?",
+                options: [
+                    "Porque en la antigüedad los mesones recibían a viajeros y descansos, y este recinto acogería a todos los deportistas",
+                    "Por la marca de un patrocinador comercial",
+                    "En honor a un restaurante famoso de Tepic",
+                    "Porque allí se vendían alimentos durante los partidos"
+                ],
+                answer: "A",
+                answerText: "Porque los mesones antiguos albergaban y recibían a viajeros, y este lugar alojaría a los deportistas",
+                explanation: "El Dr. Gascón Mercado recordó que antiguamente no había hoteles sino mesones que recibían a todos, por lo que decidió nombrarlo 'Mesón de los Deportes'."
+            },
+            {
+                category: "Espacios e Identidad",
+                points: 200,
+                type: "open", // Fuente: F2
+                question: "¿Qué valioso hallazgo se descubrió al excavar los cimientos de los primeros edificios en la Ciudad de la Cultura?",
+                answerText: "Un yacimiento arqueológico prehispánico",
+                explanation: "Durante las excavaciones se descubrió un yacimiento arqueológico cuyas piezas prehispánicas se conservaron para exhibición e historia cultural."
+            },
+            {
+                category: "Espacios e Identidad",
+                points: 300,
+                type: "multiple", // Fuente: F4
+                question: "¿Cuál fue la primera escuela superior que el Dr. Gascón Mercado insistió en fundar en la Ciudad de la Cultura, a pesar de la oposición inicial de algunos abogados?",
+                options: ["Escuela de Medicina", "Escuela de Leyes / Derecho", "Escuela de Agricultura", "Escuela de Enfermería"],
+                answer: "B",
+                answerText: "Escuela de Leyes / Derecho",
+                explanation: "A pesar de que le pidieron no abrirla por el tamaño de la población de la época, el Dr. Gascón insistió visionariamente sabiendo que el estado crecería."
+            },
+            {
+                category: "Espacios e Identidad",
+                points: 400,
+                type: "multiple", // Fuente: F4
+                question: "¿Qué escuelas le siguieron inmediatamente a la Escuela de Derecho en el plan de edificación inicial?",
+                options: ["Medicina y Agricultura", "Odontología y Química", "Arte y Música", "Economía y Turismo"],
+                answer: "A",
+                answerText: "Medicina y Agricultura",
+                explanation: "Tras la Escuela de Derecho, continuaron la edificación de la Escuela de Medicina y posteriormente la de Agricultura."
+            },
+            {
+                category: "Espacios e Identidad",
+                points: 500,
+                type: "tf", // Fuente: F3
+                question: "Verdadero o Falso: Antes de la creación de la Universidad de Nayarit, los jóvenes que terminaban la secundaria debían emigrar a la Ciudad de México o Guadalajara para cursar estudios universitarios.",
+                options: ["Verdadero", "Falso"],
+                answer: "A",
+                answerText: "Verdadero",
+                explanation: "En 1944, de 20 jóvenes que emigraron a la capital, solo 3 o 4 concluyeron una carrera debido a las severas carencias económicas."
+            },
+
+            // CATEGORÍA 4: Personajes y Liderazgo
+            {
+                category: "Personajes y Liderazgo",
+                points: 100,
+                type: "multiple", // Fuente: F5
+                question: "¿Quién es la primera mujer en asumir la Rectoría en la historia de la Universidad Autónoma de Nayarit?",
+                options: ["Dra. Norma Liliana Galván Meza", "Dra. Julieta Mercado", "Mtra. Carmen Saavedra", "Dra. Beatriz Paredes"],
+                answer: "A",
+                answerText: "Dra. Norma Liliana Galván Meza",
+                explanation: "La Dra. Norma Galván asumió la rectoría marcando un hito histórico de liderazgo femenino en la máxima casa de estudios."
+            },
+            {
+                category: "Personajes y Liderazgo",
+                points: 200,
+                type: "open", // Fuente: F5
+                question: "¿En qué licenciatura egresó de la UAN la actual rectora Dra. Norma Galván Meza?",
+                answerText: "Licenciatura en Ciencias de la Educación",
+                explanation: "Es orgullosamente egresada de la Licenciatura en Ciencias de la Educación de la propia Universidad Autónoma de Nayarit."
+            },
+            {
+                category: "Personajes y Liderazgo",
+                points: 300,
+                type: "multiple", // Fuente: F4, F6
+                question: "¿En qué poblado del estado de Nayarit nació el Dr. Julián Gascón Mercado?",
+                options: ["El Trapichillo", "Acaponeta", "Compostela", "Ixtlán del Río"],
+                answer: "A",
+                answerText: "El Trapichillo",
+                explanation: "El Dr. Gascón Mercado nació en el poblado de El Trapichillo, Nayarit."
+            },
+            {
+                category: "Personajes y Liderazgo",
+                points: 400,
+                type: "tf", // Fuente: F5
+                question: "Verdadero o Falso: La Dra. Norma Galván comenzó su trayectoria laboral en la UAN desempeñándose únicamente en labores administrativas sin haber dado clases.",
+                options: ["Verdadero", "Falso"],
+                answer: "B",
+                answerText: "Falso",
+                explanation: "La Dra. Norma Galván ha sido docente ininterrumpida desde el año 2005 tanto en licenciatura como en posgrado."
+            },
+            {
+                category: "Personajes y Liderazgo",
+                points: 500,
+                type: "open", // Fuente: F4
+                question: "¿Qué frase del Dr. Julián Gascón Mercado sintetiza la función principal de la Universidad para el pueblo de Nayarit?",
+                answerText: "“Está para recibir cultura y para transmitir cultura a las nuevas generaciones”",
+                explanation: "Definió a la universidad como el cerebro del estado, alimentada por sus mejores pensadores para el devenir histórico de los nayaritas."
+            },
+
+            // CATEGORÍA 5: ¿Pusiste atención?
+            {
+                category: "¿Pusiste atención?",
+                points: 100,
+                type: "multiple", // Fuente: F2
+                question: "En el video documental 'Las Aventuras de Manuel y el Borre', ¿qué recomendación especial hacen los narradores al final del recorrido?",
+                options: [
+                    "Cuidar y darles de comer a los animalitos de la calle",
+                    "No tirarle basura a las fuentes",
+                    "Llegar siempre temprano a clases",
+                    "Inscribirse en el equipo de fútbol"
+                ],
+                answer: "A",
+                answerText: "Cuidar y darles de comer a los animalitos de la calle",
+                explanation: "El narrador concluye pidiendo con cariño cuidar a los animales desvalidos y darles comida."
+            },
+            {
+                category: "¿Pusiste atención?",
+                points: 200,
+                type: "open", // Fuente: F2
+                question: "En el recorrido en video dentro de la Ciudad de la Cultura, ¿qué grupo musical recordaban haber tocado junto con los estudiantes universitarios?",
+                answerText: "Los Vagabundos",
+                explanation: "Manuel menciona que en sus años de juventud venían a tocar con el grupo 'Los Vagabundos' contratados por los estudiantes universitarios."
+            },
+            {
+                category: "¿Pusiste atención?",
+                points: 300,
+                type: "multiple", // Fuente: F1, F6
+                question: " exactitud, ¿a qué hora del día se entregaban las cuentas de la colecta del Camino de Plata junto ante el Notario Público?",
+                options: ["A las 12:00 del mediodía", "A las 6:00 de la tarde", "A las 10:00 de la noche", "A las 8:00 de la mañana"],
+                answer: "B",
+                answerText: "A las 6:00 de la tarde",
+                explanation: "El Dr. Gascón Mercado relata que diariamente a las 6:00 p.m. saldaban las cuentas acompañados de un Notario Público."
+            },
+            {
+                category: "¿Pusiste atención?",
+                points: 400,
+                type: "tf", // Fuente: F4
+                question: "Verdadero o Falso: Cuando el Dr. Julián Gascón Mercado era joven, sus 4 hermanas pudieron estudiar carreras profesionales en Tepic.",
+                options: ["Verdadero", "Falso"],
+                answer: "B",
+                answerText: "Falso",
+                explanation: "Recordó con tristeza que sus 4 hermanas solo pudieron estudiar cursos cortos como repostería y corte de ropa porque no existía educación superior en el estado."
+            },
+            {
+                category: "¿Pusiste atención?",
+                points: 500,
+                type: "open", // Fuente: F5
+                question: "¿A qué edad la Dra. Norma Galván decidió dedicarse completamente a la vida académica universitaria?",
+                answerText: "A los 25 años",
+                explanation: "Menciona en su entrevista que a los 25 años tomó la decisión de integrarse plenamente al servicio universitario."
+            }
+        ];
+
+        // PREGUNTA INTEGRADORA PARA LA GRAN FINAL
+        const FINAL_QUESTION = {
+            question: "Considerando la historia de nuestra casa de estudios: ¿Por qué afirmaba el Dr. Julián Gascón Mercado que la Universidad Autónoma de Nayarit NO es un logro personal, sino un esfuerzo colectivo de todo el pueblo nayarita?",
+            answerText: "Porque fue construida con el aporte comunitario del 'Camino de Plata', la donación de un ladrillo por cada estudiante, las aportaciones de agricultores, ejidatarios y familias de todas las clases sociales.",
+            explanation: "Toda la sociedad nayarita aportó recursos, tierras, ladrillos y trabajo para hacer realidad la educación superior en nuestro estado."
+        };
+
+        // PREGUNTA DE DESEMPATE
+        const TIE_BREAKER_QUESTION = {
+            question: "¿En qué año se iniciaron los esfuerzos directos de recolección de ladrillos en todo el estado para la edificación universitaria?",
+            answerText: "1968",
+            explanation: "En 1968 se lanzó la gran convocatoria de recolección de ladrillos."
+        };
+
+        /* =============================================================
+           ESTADO Y LÓGICA DE LA APLICACIÓN
+           ============================================================= */
+
+        let numTeams = 5;
+        let teams = []; // { id, name, score }
+        let currentTurnIndex = 0;
+        let boardState = []; // Mantiene el estado jugadas/casillas
+        let selectedQuestion = null;
+        let selectedCellIndex = null;
+        let historyStack = []; // Para desarmar o deshacer puntuaciones
+        let audioEnabled = true;
+        let timerEnabled = true;
+        let timerInterval = null;
+        let timerSeconds = 30;
+
+        // Casillas especiales asignadas aleatoriamente al iniciar
+        let doublePointsIndices = [];
+        let retoOceloteIndex = null;
+
+        // Inicializar al cargar la página
+        window.onload = function() {
+            updateTeamsSetupGrid();
+        };
+
+        // Cambiar cuadrícula de nombres según número de equipos seleccionado
+        function updateTeamsSetupGrid() {
+            numTeams = parseInt(document.getElementById('num-teams-select').value);
+            const grid = document.getElementById('teams-setup-grid');
+            grid.innerHTML = '';
+
+            for (let i = 1; i <= numTeams; i++) {
+                const group = document.createElement('div');
+                group.className = 'team-input-group';
+                group.innerHTML = `
+                    <label>Nombre del Equipo ${i}:</label>
+                    <input type="text" id="team-name-input-${i}" value="Equipo ${i}" maxlength="20">
+                `;
+                grid.appendChild(group);
+            }
+        }
+
+        function goToIcebreaker() {
+            // Guardar equipos
+            teams = [];
+            for (let i = 1; i <= numTeams; i++) {
+                const inputVal = document.getElementById(`team-name-input-${i}`).value.trim();
+                teams.push({
+                    id: i,
+                    name: inputVal || `Equipo ${i}`,
+                    score: 0
+                });
+            }
+            showScreen('screen-icebreaker');
+        }
+
+        function goToRules() {
+            showScreen('screen-rules');
+        }
+
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+        }
+
+        /* =============================================================
+           INICIALIZACIÓN DEL TABLERO JEOPARDY
+           ============================================================= */
+
+        function startGameBoard() {
+            showScreen('screen-board');
+            setupSpecialCells();
+            renderScoreboard();
+            renderBoard();
+            updateTurnDisplay();
+        }
+
+        // Asignar aleatoriamente 2 Casillas Doble Puntaje y 1 Reto Ocelote
+        function setupSpecialCells() {
+            const availableIndices = Array.from({length: 25}, (_, i) => i);
+            
+            // Seleccionar 1 para Reto Ocelote
+            const oceloteRand = Math.floor(Math.random() * availableIndices.length);
+            retoOceloteIndex = availableIndices.splice(oceloteRand, 1)[0];
+
+            // Seleccionar 2 para Doble Puntaje
+            doublePointsIndices = [];
+            for (let k = 0; k < 2; k++) {
+                const rand = Math.floor(Math.random() * availableIndices.length);
+                doublePointsIndices.push(availableIndices.splice(rand, 1)[0]);
+            }
+
+            // Inicializar array de estado
+            boardState = QUESTIONS_BANK.map((q, idx) => ({
+                played: false,
+                isDouble: doublePointsIndices.includes(idx),
+                isOcelote: (idx === retoOceloteIndex)
+            }));
+        }
+
+        function renderScoreboard() {
+            const container = document.getElementById('scoreboard-container');
+            container.innerHTML = '';
+
+            teams.forEach((team, index) => {
+                const card = document.createElement('div');
+                card.className = `team-card ${index === currentTurnIndex ? 'active-turn' : ''}`;
+                card.onclick = () => setTurn(index);
+                card.innerHTML = `
+                    <div class="name">${team.name}</div>
+                    <div class="score">${team.score}</div>
+                `;
+                container.appendChild(card);
+            });
+            updateTeacherScoresPanel();
+        }
+
+        function renderBoard() {
+            const board = document.getElementById('jeopardy-board');
+            board.innerHTML = '';
+
+            // 5 Categorías fijas
+            const categories = [
+                "Historia UAN",
+                "Camino de Plata",
+                "Espacios e Identidad",
+                "Personajes UAN",
+                "¿Pusiste Atención?"
+            ];
+
+            // Render Encabezados de Categoría
+            categories.forEach(cat => {
+                const header = document.createElement('div');
+                header.className = 'category-header';
+                header.innerText = cat;
+                board.appendChild(header);
+            });
+
+            // Render Casillas por fila de puntaje (100 a 500)
+            const pointLevels = [100, 200, 300, 400, 500];
+
+            for (let row = 0; row < 5; row++) {
+                for (let col = 0; col < 5; col++) {
+                    const questionIndex = col * 5 + row; // Mapeo por columna/categoría
+                    const qData = QUESTIONS_BANK[questionIndex];
+                    const state = boardState[questionIndex];
+
+                    const cell = document.createElement('div');
+                    cell.className = `grid-cell ${state.played ? 'played' : ''}`;
+                    cell.innerText = state.played ? '✓' : qData.points;
+                    
+                    if (!state.played) {
+                        cell.onclick = () => openQuestionModal(questionIndex);
+                    }
+
+                    board.appendChild(cell);
+                }
+            }
+
+            checkAllQuestionsPlayed();
+        }
+
+        function setTurn(index) {
+            currentTurnIndex = index;
+            renderScoreboard();
+            updateTurnDisplay();
+        }
+
+        function nextTurn() {
+            currentTurnIndex = (currentTurnIndex + 1) % teams.length;
+            renderScoreboard();
+            updateTurnDisplay();
+        }
+
+        function updateTurnDisplay() {
+            document.getElementById('current-turn-team-name').innerText = teams[currentTurnIndex].name;
+        }
+
+        /* =============================================================
+           MODAL Y MANEJO DE PREGUNTAS
+           ============================================================= */
+
+        function openQuestionModal(index) {
+            selectedCellIndex = index;
+            selectedQuestion = QUESTIONS_BANK[index];
+            const state = boardState[index];
+
+            // Ajustar overlay especial si aplica
+            const specialOverlay = document.getElementById('special-overlay');
+            if (state.isOcelote) {
+                document.getElementById('special-title').innerText = "🐾 ¡RETO OCELOTE!";
+                document.getElementById('special-desc').innerText = "¡Reto especial de equipo! Demuestren su trabajo colaborativo. Valor: 600 PUNTOS.";
+                specialOverlay.classList.add('active');
+                if (audioEnabled) playSound('special');
+            } else if (state.isDouble) {
+                document.getElementById('special-title').innerText = "⚡ ¡DOBLE PUNTAJE!";
+                document.getElementById('special-desc').innerText = "¡Esta pregunta vale el DOBLE de puntos!";
+                specialOverlay.classList.add('active');
+                if (audioEnabled) playSound('special');
+            } else {
+                specialOverlay.classList.remove('active');
+            }
+
+            // Datos de la tarjeta
+            document.getElementById('modal-category').innerText = selectedQuestion.category;
+            
+            let displayPoints = selectedQuestion.points;
+            if (state.isDouble) displayPoints *= 2;
+            if (state.isOcelote) displayPoints = 600;
+
+            document.getElementById('modal-points').innerText = `${displayPoints} PUNTOS`;
+            document.getElementById('modal-question-text').innerText = selectedQuestion.question;
+
+            // Opciones si es múltiple
+            const optionsGrid = document.getElementById('modal-options-grid');
+            optionsGrid.innerHTML = '';
+            if (selectedQuestion.type === 'multiple' || selectedQuestion.type === 'tf') {
+                const letters = ['A', 'B', 'C', 'D'];
+                selectedQuestion.options.forEach((opt, idx) => {
+                    const optBtn = document.createElement('div');
+                    optBtn.className = 'option-btn';
+                    optBtn.innerHTML = `
+                        <div class="option-letter">${letters[idx]}</div>
+                        <div>${opt}</div>
+                    `;
+                    optionsGrid.appendChild(optBtn);
+                });
+            }
+
+            // Ocultar respuesta
+            document.getElementById('modal-answer-box').classList.remove('active');
+            document.getElementById('btn-show-answer').style.display = 'inline-flex';
+            document.getElementById('eval-buttons').style.display = 'none';
+
+            // Preparar botones de asignación a equipos
+            const teamAssignContainer = document.getElementById('team-assign-buttons');
+            teamAssignContainer.innerHTML = '';
+            teams.forEach(t => {
+                const btn = document.createElement('button');
+                btn.className = 'btn btn-success';
+                btn.innerText = `+${displayPoints} ${t.name}`;
+                btn.onclick = () => assignPointsToTeam(t.id, displayPoints);
+                teamAssignContainer.appendChild(btn);
+            });
+
+            // Reiniciar y arrancar temporizador si está activo
+            resetTimer();
+            if (timerEnabled) {
+                startTimer();
+            }
+
+            document.getElementById('question-modal').classList.add('active');
+        }
+
+        function dismissSpecialOverlay() {
+            document.getElementById('special-overlay').classList.remove('active');
+        }
+
+        function revealAnswer() {
+            stopTimer();
+            document.getElementById('modal-answer-text').innerText = selectedQuestion.answerText;
+            document.getElementById('modal-explanation-text').innerText = selectedQuestion.explanation;
+            document.getElementById('modal-answer-box').classList.add('active');
+
+            document.getElementById('btn-show-answer').style.display = 'none';
+            document.getElementById('eval-buttons').style.display = 'flex';
+
+            if (audioEnabled) playSound('reveal');
+        }
+
+        function assignPointsToTeam(teamId, points) {
+            // Guardar en historial para deshacer
+            saveHistory();
+
+            const team = teams.find(t => t.id === teamId);
+            if (team) {
+                team.score += points;
+            }
+
+            // Marcar casilla como jugada
+            boardState[selectedCellIndex].played = true;
+
+            closeQuestionModal();
+            renderScoreboard();
+            renderBoard();
+
+            if (audioEnabled) playSound('correct');
+        }
+
+        function markIncorrectAndClose() {
+            saveHistory();
+            boardState[selectedCellIndex].played = true;
+            closeQuestionModal();
+            renderBoard();
+        }
+
+        function closeQuestionModal() {
+            stopTimer();
+            document.getElementById('question-modal').classList.remove('active');
+        }
+
+        /* =============================================================
+           TEMPORIZADOR DEL JUEGO
+           ============================================================= */
+
+        function startTimer() {
+            stopTimer();
+            const clock = document.getElementById('modal-timer');
+
+            timerInterval = setInterval(() => {
+                timerSeconds--;
+                clock.innerText = timerSeconds;
+
+                if (timerSeconds <= 5 && timerSeconds > 0) {
+                    clock.className = 'timer-clock warning';
+                    if (audioEnabled) playSound('tick');
+                } else if (timerSeconds <= 0) {
+                    stopTimer();
+                    clock.className = 'timer-clock danger';
+                    clock.innerText = '¡TIEMPO!';
+                    if (audioEnabled) playSound('timeup');
+                }
+            }, 1000);
+        }
+
+        function stopTimer() {
+            if (timerInterval) clearInterval(timerInterval);
+        }
+
+        function resetTimer() {
+            stopTimer();
+            timerSeconds = 30;
+            const clock = document.getElementById('modal-timer');
+            clock.className = 'timer-clock';
+            clock.innerText = '30';
+        }
+
+        function toggleTimer() {
+            if (timerInterval) {
+                stopTimer();
+            } else {
+                startTimer();
+            }
+        }
+
+        /* =============================================================
+           VERIFICACIÓN DE FIN DE TABLERO
+           ============================================================= */
+
+        function checkAllQuestionsPlayed() {
+            const allPlayed = boardState.every(s => s.played);
+            const btnFinal = document.getElementById('btn-gran-final');
+            if (allPlayed) {
+                btnFinal.style.display = 'inline-flex';
+                btnFinal.classList.add('pulse');
+            } else {
+                btnFinal.style.display = 'none';
+            }
+        }
+
+        /* =============================================================
+           GRAN FINAL UAN
+           ============================================================= */
+
+        function goToGranFinal() {
+            showScreen('screen-final');
+            document.getElementById('final-step-1').style.display = 'block';
+            document.getElementById('final-step-2').style.display = 'none';
+
+            // Generar inputs de apuestas
+            const container = document.getElementById('final-bets-inputs');
+            container.innerHTML = '';
+
+            teams.forEach(t => {
+                const row = document.createElement('div');
+                row.style.display = 'flex';
+                row.style.justifySpaceBetween = 'space-between';
+                row.style.alignItems = 'center';
+                row.style.background = '#0d2138';
+                row.style.padding = '8px 15px';
+                row.style.borderRadius = '8px';
+
+                row.innerHTML = `
+                    <span style="font-weight: bold; font-size: 1.1rem;">${t.name} (Puntos: ${t.score})</span>
+                    <input type="number" id="bet-input-${t.id}" min="0" max="${Math.max(0, t.score)}" value="0" 
+                           style="width: 100px; padding: 6px; border-radius: 6px; border: 1px solid var(--uan-gold); background: #000; color: #fff; text-align: center; font-size: 1.1rem;">
+                `;
+                container.appendChild(row);
+            });
+        }
+
+        function proceedToFinalQuestion() {
+            // Guardar apuestas en el objeto team
+            teams.forEach(t => {
+                const betVal = parseInt(document.getElementById(`bet-input-${t.id}`).value) || 0;
+                t.bet = Math.min(Math.max(0, betVal), Math.max(0, t.score));
+            });
+
+            document.getElementById('final-step-1').style.display = 'none';
+            document.getElementById('final-step-2').style.display = 'block';
+            document.getElementById('final-question-text').innerText = FINAL_QUESTION.question;
+        }
+
+        let finalTimerInterval = null;
+        function startFinalTimer() {
+            let sec = 45;
+            const timerEl = document.getElementById('final-timer');
+            if (finalTimerInterval) clearInterval(finalTimerInterval);
+
+            finalTimerInterval = setInterval(() => {
+                sec--;
+                timerEl.innerText = sec;
+                if (sec <= 0) {
+                    clearInterval(finalTimerInterval);
+                    timerEl.innerText = "¡TIEMPO FINAL!";
+                    if (audioEnabled) playSound('timeup');
+                }
+            }, 1000);
+        }
+
+        function revealFinalAnswer() {
+            if (finalTimerInterval) clearInterval(finalTimerInterval);
+            document.getElementById('final-correct-answer').innerText = FINAL_QUESTION.answerText;
+            document.getElementById('final-explanation').innerText = FINAL_QUESTION.explanation;
+            document.getElementById('final-answer-box').style.display = 'block';
+
+            // Generar checkboxes para el docente
+            const evalContainer = document.getElementById('final-evaluation-checks');
+            evalContainer.innerHTML = '';
+
+            teams.forEach(t => {
+                const label = document.createElement('label');
+                label.style.display = 'flex';
+                label.style.alignItems = 'center';
+                label.style.gap = '10px';
+                label.style.fontSize = '1.2rem';
+                label.style.background = '#0c233c';
+                label.style.padding = '8px 12px';
+                label.style.borderRadius = '6px';
+                label.style.cursor = 'pointer';
+
+                label.innerHTML = `
+                    <input type="checkbox" id="final-check-${t.id}" style="width: 20px; height: 20px;">
+                    <span>${t.name} (Apostó: ${t.bet} pts)</span>
+                `;
+                evalContainer.appendChild(label);
+            });
+        }
+
+        function calculateFinalResults() {
+            saveHistory();
+
+            teams.forEach(t => {
+                const isCorrect = document.getElementById(`final-check-${t.id}`).checked;
+                if (isCorrect) {
+                    t.score += (t.bet || 0);
+                } else {
+                    t.score -= (t.bet || 0);
+                }
+            });
+
+            // Ordenar de mayor a menor
+            teams.sort((a, b) => b.score - a.score);
+
+            // Verificar si hay empate en el 1er lugar
+            if (teams.length > 1 && teams[0].score === teams[1].score) {
+                handleTieBreaker();
+            } else {
+                showWinnerScreen();
+            }
+        }
+
+        function handleTieBreaker() {
+            alert(`¡Existe un empate en el primer lugar entre ${teams[0].name} y ${teams[1].name}! Se activará la Pregunta de Desempate.`);
+            
+            document.getElementById('final-question-text').innerText = "PREGUNTA DE DESEMPATE: " + TIE_BREAKER_QUESTION.question;
+            document.getElementById('final-correct-answer').innerText = TIE_BREAKER_QUESTION.answerText;
+            document.getElementById('final-explanation').innerText = TIE_BREAKER_QUESTION.explanation;
+        }
+
+        /* =============================================================
+           PANTALLA DE GANADORES Y CONFETI
+           ============================================================= */
+
+        function showWinnerScreen() {
+            showScreen('screen-winner');
+            triggerConfetti();
+
+            const winnerDisplay = document.getElementById('winner-display');
+            winnerDisplay.innerHTML = `
+                <div style="font-size: 2.8rem; font-weight: 900; color: var(--uan-gold-bright); text-shadow: 0 0 15px rgba(244,196,48,0.6);">
+                    🥇 ${teams[0].name}
+                </div>
+                <div style="font-size: 2rem; color: #fff; margin-top: 5px;">
+                    ${teams[0].score} PUNTOS
+                </div>
+            `;
+        }
+
+        /* =============================================================
+           SISTEMA DE DESHACER Y CONTROLES DEL DOCENTE
+           ============================================================= */
+
+        function saveHistory() {
+            historyStack.push({
+                teams: JSON.parse(JSON.stringify(teams)),
+                boardState: JSON.parse(JSON.stringify(boardState))
+            });
+        }
+
+        function undoLastScore() {
+            if (historyStack.length === 0) {
+                alert("No hay acciones previas para deshacer.");
+                return;
+            }
+            const lastState = historyStack.pop();
+            teams = lastState.teams;
+            boardState = lastState.boardState;
+
+            renderScoreboard();
+            renderBoard();
+            alert("Última modificación de puntuación o casilla deshecha.");
+        }
+
+        function toggleTeacherPanel() {
+            const panel = document.getElementById('teacher-panel');
+            panel.classList.toggle('active');
+        }
+
+        function updateTeacherScoresPanel() {
+            const container = document.getElementById('teacher-scores-edit');
+            if (!container) return;
+            container.innerHTML = '';
+
+            teams.forEach(t => {
+                const row = document.createElement('div');
+                row.style.display = 'flex';
+                row.style.alignItems = 'center';
+                row.style.justifyContent = 'space-between';
+                row.style.gap = '5px';
+
+                row.innerHTML = `
+                    <span style="font-size: 0.85rem; max-width: 110px; overflow: hidden; text-overflow: ellipsis;">${t.name}</span>
+                    <div style="display: flex; gap: 4px; align-items: center;">
+                        <button style="background:#d9534f; color:#fff; border:none; padding:2px 8px; border-radius:4px; font-weight:bold;" onclick="adjustScore(${t.id}, -100)">-100</button>
+                        <span style="font-weight:bold; font-size: 0.95rem; min-width: 45px; text-align:center;">${t.score}</span>
+                        <button style="background:#5cb85c; color:#fff; border:none; padding:2px 8px; border-radius:4px; font-weight:bold;" onclick="adjustScore(${t.id}, 100)">+100</button>
+                    </div>
+                `;
+                container.appendChild(row);
+            });
+        }
+
+        function adjustScore(teamId, delta) {
+            saveHistory();
+            const t = teams.find(team => team.id === teamId);
+            if (t) {
+                t.score += delta;
+                renderScoreboard();
+            }
+        }
+
+        function toggleAudioSetting() {
+            audioEnabled = !audioEnabled;
+            document.getElementById('btn-toggle-sound').innerText = `🔊 Sonido: ${audioEnabled ? 'ACTIVADO' : 'DESACTIVADO'}`;
+        }
+
+        function toggleTimerSetting() {
+            timerEnabled = !timerEnabled;
+            document.getElementById('btn-toggle-timer-setting').innerText = `⏱️ Temporizador: ${timerEnabled ? 'ACTIVADO' : 'DESACTIVADO'}`;
+        }
+
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => alert("Pantalla completa no soportada por el navegador."));
+            } else {
+                if (document.exitFullscreen) document.exitFullscreen();
+            }
+        }
+
+        function resetGameWithConfirmation() {
+            if (confirm("¿Estás seguro de que deseas reiniciar el juego? Se perderán todas las puntuaciones actualizadas.")) {
+                location.reload();
+            }
+        }
+
+        /* =============================================================
+           MODALES SECUNDARIOS: LEADERBOARD Y FUENTES
+           ============================================================= */
+
+        function openLeaderboardModal() {
+            const container = document.getElementById('leaderboard-content');
+            container.innerHTML = '';
+
+            const sorted = [...teams].sort((a, b) => b.score - a.score);
+            const medals = ['🥇', '🥈', '🥉'];
+
+            sorted.forEach((t, idx) => {
+                const item = document.createElement('div');
+                item.className = 'leaderboard-item';
+                const prefix = idx < 3 ? medals[idx] : `${idx + 1}º`;
+                item.innerHTML = `
+                    <span>${prefix} ${t.name}</span>
+                    <span>${t.score} PTS</span>
+                `;
+                container.appendChild(item);
+            });
+
+            document.getElementById('leaderboard-modal').classList.add('active');
+        }
+
+        function closeLeaderboardModal() {
+            document.getElementById('leaderboard-modal').classList.remove('active');
+        }
+
+        function openSourcesModal() {
+            document.getElementById('sources-modal').classList.add('active');
+        }
+
+        function closeSourcesModal() {
+            document.getElementById('sources-modal').classList.remove('active');
+        }
+
+        /* =============================================================
+           EFECTOS SONOROS SINTETIZADOS CON WEB AUDIO API
+           ============================================================= */
+
+        function playSound(type) {
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+
+                if (type === 'tick') {
+                    osc.frequency.setValueAtTime(800, ctx.currentTime);
+                    gain.gain.setValueAtTime(0.1, ctx.currentTime);
+                    osc.start();
+                    osc.stop(ctx.currentTime + 0.05);
+                } else if (type === 'timeup') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(300, ctx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(100, ctx.currentTime + 0.4);
+                    gain.gain.setValueAtTime(0.3, ctx.currentTime);
+                    osc.start();
+                    osc.stop(ctx.currentTime + 0.4);
+                } else if (type === 'correct') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(523.25, ctx.currentTime); // C5
+                    osc.frequency.setValueAtTime(659.25, ctx.currentTime + 0.1); // E5
+                    osc.frequency.setValueAtTime(783.99, ctx.currentTime + 0.2); // G5
+                    gain.gain.setValueAtTime(0.2, ctx.currentTime);
+                    osc.start();
+                    osc.stop(ctx.currentTime + 0.35);
+                } else if (type === 'reveal') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(440, ctx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.2);
+                    gain.gain.setValueAtTime(0.15, ctx.currentTime);
+                    osc.start();
+                    osc.stop(ctx.currentTime + 0.2);
+                } else if (type === 'special') {
+                    osc.type = 'square';
+                    osc.frequency.setValueAtTime(300, ctx.currentTime);
+                    osc.frequency.setValueAtTime(600, ctx.currentTime + 0.15);
+                    gain.gain.setValueAtTime(0.2, ctx.currentTime);
+                    osc.start();
+                    osc.stop(ctx.currentTime + 0.3);
+                }
+            } catch(e) {
+                // Silencioso en caso de restricciones de autoplay
+            }
+        }
+
+        /* =============================================================
+           ANIMACIÓN DE CONFETI EN CANVAS PURO
+           ============================================================= */
+
+        function triggerConfetti() {
+            const canvas = document.getElementById('confetti-canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            const pieces = [];
+            const colors = ['#f4c430', '#e0a96d', '#134074', '#ffffff', '#5cb85c', '#d9534f'];
+
+            for (let i = 0; i < 150; i++) {
+                pieces.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height - canvas.height,
+                    size: Math.random() * 10 + 5,
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    speed: Math.random() * 5 + 2,
+                    rotation: Math.random() * 360,
+                    rotationSpeed: Math.random() * 10 - 5
+                });
+            }
+
+            function animateConfetti() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                pieces.forEach(p => {
+                    p.y += p.speed;
+                    p.rotation += p.rotationSpeed;
+
+                    ctx.save();
+                    ctx.translate(p.x, p.y);
+                    ctx.rotate((p.rotation * Math.PI) / 180);
+                    ctx.fillStyle = p.color;
+                    ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
+                    ctx.restore();
+
+                    if (p.y > canvas.height) {
+                        p.y = -10;
+                        p.x = Math.random() * canvas.width;
+                    }
+                });
+
+                requestAnimationFrame(animateConfetti);
+            }
+
+            animateConfetti();
+        }
+    </script>
+</body>
+</html>
